@@ -1,6 +1,6 @@
 # whatsapp-api
 
-whatsapp baileys v5
+whatsapp baileys v6 whiskeysockets
 
 # Install
 
@@ -8,3 +8,5 @@ whatsapp baileys v5
 - npm run start
 
 chcek browser localhost:9000
+
+# fitur only send message
