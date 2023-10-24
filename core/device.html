@@ -2,23 +2,51 @@
 <html>
 
 <head>
-    <title>WAF</title>
+    <title>Whatsapp Web API</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+
+    <style>
+            .header {
+            background-color: #3bd158;
+        }
+
+        body{
+            background-color: slategray;
+        }
+        .bg {
+            background: #C9D6FF;
+            /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #E2E2E2, #C9D6FF);
+            /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #E2E2E2, #C9D6FF);
+            /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+            box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;
+        }
+    </style>
 </head>
 
 <body>
-
-    <div class="container py-5">
-        <form action="/device" method="post">
-            <div class="form-group">
-                <label for="nomor">Input your number Whatsapp:</label>
-                <p class="small text-danger">You can use the country code prefix . Example: 6281223xxxx</p>
-                <input type="number" class="form-control" placeholder="Enter number" name="device" id="number" required>
+    <header class="header">
+        <h4 class="text-center py-3 ">Whatsapp Web API</h1>
+    </header>
+    <div class="container py-5 d-flex justify-content-center align-items-center" style="height: 86vh;">
+        <div class="card">
+            <div class="card-body bg">
+                <form action="/device" method="post">
+                    <div class="form-group">
+                        <label for="number">Enter Your Active Whatsapp Number:</label>
+                        <p class="small text-danger ">You can use the country code prefix (without + ) . Example: <span style="background-color: rgb(22, 255, 22);">91</span><span style="background-color: rgba(14, 199, 14, 0.902);">7112012345</span>, Here <span style="background-color: rgb(22, 212, 255);">91</span> is for india</p>
+                        <input type="number" class="form-control" placeholder="Enter number" name="device" id="number"
+                            required>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
