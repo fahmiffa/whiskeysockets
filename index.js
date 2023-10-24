@@ -19,7 +19,7 @@ const con = require("./core/core.js");
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
-
+app.use(express.static("public"));
 // config cors
 // const io = require("socket.io")(server, {
 //   cors: {
@@ -78,7 +78,7 @@ io.on("connection", (socket) => {
 
   socket.on("LogoutDevice", (device) => {
     if (fs.existsSync(path.concat(device))) {
-      fs.rmdirSync(path.concat(device), { recursive: true });
+      fs.rmSync(path.concat(device), { recursive: true });
       console.log("logout device " + device);
 
       socket.emit("message", "logout device " + device);
