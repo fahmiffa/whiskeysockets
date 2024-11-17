@@ -13,8 +13,6 @@ const port = 9000;
 const qrcode = require("qrcode");
 const pino = require("pino");
 
-const con = require("./core/core.js");
-
 const app = express();
 const server = http.createServer(app);
 const path = require("path");
