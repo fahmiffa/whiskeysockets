@@ -4,8 +4,6 @@ const {
   useMultiFileAuthState,
 } = require("@whiskeysockets/baileys");
 
-process.setMaxListeners(0);
-
 const http = require("http");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -14,26 +12,29 @@ const qrcode = require("qrcode");
 const pino = require("pino");
 
 const app = express();
+const cors = require("cors");
 const server = http.createServer(app);
 const path = require("path");
 const fs = require("fs");
 
-const EventEmitter = require("events");
-const qrEmitter = new EventEmitter();
-
 // const socketIO = require("socket.io");
 // const io = socketIO(server);
 // config cors
+const corsOptions = {
+  origin: "*",
+  methods: ["GET", "POST"],
+  credentials: true,
+};
+
 const io = require("socket.io")(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    credentials: true,
+    corsOptions,
   },
 });
 
 const { body, validationResult } = require("express-validator");
 
+app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -51,29 +52,20 @@ async function auth(sta) {
 
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect, qr } = update;
-
+    io.emit("message", connection);
     if (qr) {
-      qrEmitter.emit("qr", qr);
+      qrcode.toDataURL(qr, function (err, url) {
+        io.emit("qr", url);
+      });
     }
-
     if (connection === "close") {
-      const statusCode = lastDisconnect.error?.output?.statusCode;
-      isLoggedOut = statusCode === DisconnectReason.loggedOut;
-      console.log("logout", isLoggedOut);
-      if (isLoggedOut) {
-        remove(sta);
-        auth(sta);
-        qrEmitter.emit("logout", isLoggedOut);
-      } else {
-        qrEmitter.emit("login", true);
-      }
-
-      if (!isLoggedOut) {
+      const shouldReconnect =
+        lastDisconnect.output?.statusCode !== DisconnectReason.loggedOut;
+      if (shouldReconnect) {
         auth(sta);
       }
-
-      console.log(DisconnectReason);
     }
+    console.log("koneksi :", connection);
   });
   sock.ev.on("creds.update", saveCreds);
   return sock;
@@ -99,7 +91,6 @@ async function send(sta, msg, to) {
       });
     }
   });
-
   sock.ev.on("creds.update", saveCreds);
   return sock;
 }
@@ -111,33 +102,23 @@ async function remove(sta) {
       console.error("Error removing path:", err);
       return;
     } else {
-      console.log("remove");
+      console.log("remove :", sta);
     }
   });
 }
 
 io.on("connection", (socket) => {
   socket.on("StartConnection", async (device) => {
-    const sock = await auth(device);
-    if (typeof sock.user !== "undefined") {
-      console.log("user ", sock.user);
-      socket.emit("ready", "Whatsapp connected");
+    const sessionPath = path.join(__dirname, `sessions/${device}`);
+    if (fs.existsSync(sessionPath)) {
+      socket.emit("message", "open");
     } else {
-      socket.emit("message", "QR Code received, scan please!");
-      qrEmitter.on("qr", (qr) => {
-        qrcode.toDataURL(qr, function (err, url) {
-          socket.emit("qr", url);
-        });
-      });
+      const sock = await auth(device);
+      if (typeof sock.user !== "undefined") {
+        console.log("user ", sock.user);
+        socket.emit("message", "open");
+      }
     }
-  });
-
-  qrEmitter.on("logout", (qr) => {
-    socket.emit("message", "Device Disconnect");
-  });
-
-  qrEmitter.on("login", (qr) => {
-    socket.emit("ready", "Whatsapp connected");
   });
 
   socket.on("LogoutDevice", (device) => {

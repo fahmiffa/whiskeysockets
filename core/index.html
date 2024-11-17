@@ -27,29 +27,35 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
-    <script>
-    
+    <script>    
     const url = window.location.href;
+    let con = true;
     const lastSegment = url.split("/").pop();
 
             var socket = io();
-            
-            
-            socket.emit('StartConnection',lastSegment);
+                        
+            if(con)
+            {
+                socket.emit('StartConnection',lastSegment);
+            }
             socket.on('message', function (msg) {
-                $('.logs').append($('<li>').text(msg));
+                console.log(msg);
+                if (msg) {     
+                    $('.logs').append($('<li>').text(msg));
+                }
+
+                if(msg == "open")
+                {
+                    con = false;
+                    $('#logout').attr('href', '/logout/' + lastSegment);
+                    $("#ref").html('<button class="btn btn-danger mb-3" id="logout" onclick="logout('+lastSegment+')">Logout</button>');
+                    $('#qrcode').hide();
+                }
             });
 
             socket.on('qr', function (src) {
                 $('#qrcode').attr('src', src);
                 $('#qrcode').show();
-            });
-
-            socket.on('ready', function (data) {
-                $('.logs').append($('<li>').text(data));
-                $('#logout').attr('href', '/logout/' + data);
-                $("#ref").html('<button class="btn btn-danger mb-3" id="logout" onclick="logout('+lastSegment+')">Logout</button>');
-                $('#qrcode').hide();
             });
         
            function logout(device){
