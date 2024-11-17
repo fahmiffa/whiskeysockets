@@ -37,7 +37,6 @@
             
             socket.emit('StartConnection',lastSegment);
             socket.on('message', function (msg) {
-
                 $('.logs').append($('<li>').text(msg));
             });
 
@@ -47,13 +46,15 @@
             });
 
             socket.on('ready', function (data) {
+                $('.logs').append($('<li>').text(data));
                 $('#logout').attr('href', '/logout/' + data);
-                $("#ref").html('<button class="btn btn-danger mb-3" id="logout" onclick="logout('+data+')">Logout</button>');
+                $("#ref").html('<button class="btn btn-danger mb-3" id="logout" onclick="logout('+lastSegment+')">Logout</button>');
                 $('#qrcode').hide();
             });
         
            function logout(device){
-            socket.emit('LogoutDevice',device)
+            socket.emit('LogoutDevice',device);
+            socket.emit('StartConnection',lastSegment);
             }        
     </script>
 </body>
